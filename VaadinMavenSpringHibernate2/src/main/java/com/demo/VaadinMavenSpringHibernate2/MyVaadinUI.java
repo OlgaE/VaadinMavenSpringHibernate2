@@ -4,9 +4,11 @@ import java.util.Date;
 
 import javax.servlet.annotation.WebServlet;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Order;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
@@ -31,8 +33,6 @@ public class MyVaadinUI extends UI {
 
 	private static SessionFactory sessionFactory;
 	private static ServiceRegistry serviceRegistry;
-
-	UserComment userCommentObj2 = new UserComment();
 
 	String userComment;
 	Label textDisplayLabel;
@@ -63,7 +63,7 @@ public class MyVaadinUI extends UI {
 		final MyBeanInterface bean = (MyBeanInterface) helper.getBean("myBean");
 
 		VerticalSplitPanel vPanel = new VerticalSplitPanel();
-		vPanel.setSplitPosition(50);
+		vPanel.setSplitPosition(40);
 		setContent(vPanel);
 
 		HorizontalSplitPanel hPanel = new HorizontalSplitPanel();
@@ -96,11 +96,6 @@ public class MyVaadinUI extends UI {
 		textArea.setImmediate(true);
 		vLayout1.addComponent(textArea);
 
-		final Label messageLabel = new Label("Message:");
-		messageLabel.setStyleName("textstyle");
-		final Label dataEnteredLabel = new Label("Date entered:");
-		dataEnteredLabel.setStyleName("textstyle");
-
 		// SubmitButton:
 		Button button = new Button("Submit");
 		button.addClickListener(new Button.ClickListener() {
@@ -116,10 +111,16 @@ public class MyVaadinUI extends UI {
 				session.getTransaction().commit();
 				session.close();
 				
-				vLayout2.addComponent(new Label("***"));
-				vLayout2.addComponent(dataEnteredLabel);
+				Label dataEnteredLabel = new Label("Date entered:");
+				dataEnteredLabel.setStyleName("textstyle");
+				vLayout2.addComponent(dataEnteredLabel);		
+				
 				vLayout2.addComponent(new Label(new Date().toString()));
+				
+				Label messageLabel = new Label("Message:");
+				messageLabel.setStyleName("textstyle");
 				vLayout2.addComponent(messageLabel);
+				
 				vLayout2.addComponent(new Label(userComment));
 
 				textArea.setValue("");
@@ -128,10 +129,15 @@ public class MyVaadinUI extends UI {
 		vLayout1.addComponent(button);
 
 		Label message = new Label("Your comment will appear here..");
+		message.setStyleName("textstyle");
 		vLayout2.addComponent(message);
 
 		// Getting data back from the database:
-		Button showDataButton = new Button("Show Data");
+		Label showResLabel = new Label("Show the last entry in the database:");
+		showResLabel.setStyleName("textstyle");
+		vLayout3.addComponent(showResLabel);
+		
+		Button showDataButton = new Button("Show");
 		showDataButton.addClickListener(new Button.ClickListener() {
 
 			@Override
@@ -140,11 +146,14 @@ public class MyVaadinUI extends UI {
 				Session session = sessionFactory.openSession();
 				session.beginTransaction();
 
-				// Getting the object back from the database:
-				userCommentObj2 = (UserComment) session.get(UserComment.class,1); // 1 - userId
-				session.close();
+				// Getting the last entry:
+				Criteria criteria = session.createCriteria(UserComment.class);
+				criteria.addOrder(Order.desc("id"));
+				criteria.setMaxResults(1);
+				UserComment comment = (UserComment)criteria.uniqueResult();
 				
-				vLayout3.addComponent(new Label(userCommentObj2.getUserText()));
+				vLayout3.addComponent(new Label(comment.getUserText()));
+				session.close();
 			}
 		});
 		vLayout3.addComponent(showDataButton);
