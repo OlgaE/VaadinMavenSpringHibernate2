@@ -36,7 +36,6 @@ public class MyVaadinUI extends UI {
 	private static ServiceRegistry serviceRegistry;
 
 	String userComment;
-	Label textDisplayLabel;
 
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = MyVaadinUI.class)
@@ -44,9 +43,9 @@ public class MyVaadinUI extends UI {
 	}
 
 	static {
+		
 		// Getting a SessionFactory object:
 		// Session factory is created once per application.
-		
 		try {
 			Configuration configuration = new Configuration();
 			configuration.configure();
@@ -68,6 +67,7 @@ public class MyVaadinUI extends UI {
 				.getCurrent().getServletContext());
 		BeanInterface bean = (BeanInterface) helper.getBean("myBean");
 
+		// Setting up the panels:
 		VerticalSplitPanel vPanel = new VerticalSplitPanel();
 		vPanel.setSplitPosition(45);
 		setContent(vPanel);
@@ -140,6 +140,7 @@ public class MyVaadinUI extends UI {
 		});
 		vLayout1.addComponent(button);
 
+		// Below the split line:
 		Label message = new Label("Your comment will appear here..");
 		message.setStyleName("textstyle");
 		vLayout2.addComponent(message);
@@ -164,7 +165,9 @@ public class MyVaadinUI extends UI {
 				criteria.setMaxResults(1);
 				UserComment comment = (UserComment)criteria.uniqueResult();
 				
-				vLayout3.addComponent(new Label(comment.getUserText()));
+				if(comment != null){
+					vLayout3.addComponent(new Label(comment.getUserText()));
+				}
 				session.close();
 			}
 		});
