@@ -18,6 +18,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
@@ -26,128 +27,126 @@ import com.vaadin.ui.VerticalSplitPanel;
 
 @Theme("mytheme")
 @SuppressWarnings("serial")
-public class MyVaadinUI extends UI
-{
+public class MyVaadinUI extends UI {
 
 	private static SessionFactory sessionFactory;
 	private static ServiceRegistry serviceRegistry;
-	UserComment userCommentObj = new UserComment();
-	String userComment = "";
+
+	UserComment userCommentObj2 = new UserComment();
+
+	String userComment;
 	Label textDisplayLabel;
-	
-    @WebServlet(value = "/*", asyncSupported = true)
-    @VaadinServletConfiguration(productionMode = false, ui = MyVaadinUI.class)
-    public static class Servlet extends VaadinServlet {
-    }
 
-    @Override
-    protected void init(VaadinRequest request) {
-    	// Getting a bean from the Spring bean factory:
-      	SpringContextHelper helper = new SpringContextHelper(VaadinServlet.getCurrent().getServletContext());
-    	final MyBeanInterface bean = (MyBeanInterface)helper.getBean("myBean");
-    	
-        VerticalSplitPanel vPanel = new VerticalSplitPanel();
-        vPanel.setSplitPosition(50);
-        setContent(vPanel);
-        
-        VerticalLayout vLayout1 = new VerticalLayout();
-        vPanel.setFirstComponent(vLayout1);
-        
-        final VerticalLayout vLayout2 = new VerticalLayout();
-        vPanel.setSecondComponent(vLayout2);
+	@WebServlet(value = "/*", asyncSupported = true)
+	@VaadinServletConfiguration(productionMode = false, ui = MyVaadinUI.class)
+	public static class Servlet extends VaadinServlet {
+	}
 
-        // TextArea:
-        final TextArea textArea = new TextArea("Please leave a comment:");
-        textArea.setHeight("60");
-        textArea.setWidth("150");
-        textArea.addValueChangeListener(new Property.ValueChangeListener() {
-			
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				userComment = (String) textArea.getValue();
-				
-			}
-		});
-        textArea.setImmediate(true);
-        vLayout1.addComponent(textArea);
-        
-        // SubmitButton:
-        Button button = new Button("Submit");
-        button.addClickListener(new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                
-            	vLayout2.addComponent(new Label(userComment));
-            	textArea.setValue("");
-            }
-        });
-        vLayout1.addComponent(button);
-        
-        Label message = new Label("Your comment will appear here..");
-        vLayout2.addComponent(message);
-    }
-    
-    public static void saveUserData(){
-    	
-		// ********************************************************************************************
-		//
-		// Using postgresql with these data in pom.xml file:
-		//
-		/*
-		 * <dependency> 
-		 * 	<groupId>org.hibernate</groupId>
-		 * 	<artifactId>hibernate-core</artifactId>
-		 * 	<version>4.2.6.Final</version> 
-		 * </dependency> 
-		 * <dependency>
-		 * 	<groupId>postgresql</groupId> 
-		 * 	<artifactId>postgresql</artifactId>
-		 * 	<version>9.0-801.jdbc4</version> 
-		 * </dependency>
-		 */
-
-        // Setting data for the user:
-		UserDetails user = new UserDetails();
-		user.setUserId(1);
-		user.setUserName("The very first user)");
-		user.setDateJoined(new Date());
-		user.setAddress("First address");
-		user.setDescription("Description goes here");;
-		user.setVeryLongDescription("Some long text here");
-		
-		// Getting a Session object:
+	static {
+		// Getting a SessionFactory object:
 		// Session factory is created once per application.
 		Configuration configuration = new Configuration();
 		configuration.configure();
 		serviceRegistry = new ServiceRegistryBuilder().applySettings(
 				configuration.getProperties()).buildServiceRegistry();
 		sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-		Session session = sessionFactory.openSession();
+	}
 
-		// Using session object to save an object.
-		// First, begin a transaction:
-		session.beginTransaction();
+	@Override
+	protected void init(VaadinRequest request) {
 
-		// Saving:
-		session.save(user);
+		final UserComment userCommentObj = new UserComment();
 
-		// Ending the transaction:
-		session.getTransaction().commit();
-		session.close();
-		
-		//
-		// Fetching a saved object:
-		//
-		user = null;
-		
-		// Opening a new session:
-		session = sessionFactory.openSession();
-		session.beginTransaction();
-		
-		// Getting the object:
-		user = (UserDetails) session.get(UserDetails.class, 1); // 1 - userId (primary key)
-		// seesion.get() has a return type of Object, so we need to cast it to out class.
-		
-		System.out.println("User name retrieved is " + user.getUserName());
-		// ************************************************************************************************
-    }
+		// Getting a bean from the Spring bean factory:
+		SpringContextHelper helper = new SpringContextHelper(VaadinServlet
+				.getCurrent().getServletContext());
+		final MyBeanInterface bean = (MyBeanInterface) helper.getBean("myBean");
+
+		VerticalSplitPanel vPanel = new VerticalSplitPanel();
+		vPanel.setSplitPosition(50);
+		setContent(vPanel);
+
+		HorizontalSplitPanel hPanel = new HorizontalSplitPanel();
+		vPanel.setSecondComponent(hPanel);
+
+		VerticalLayout vLayout1 = new VerticalLayout();
+		vPanel.setFirstComponent(vLayout1);
+
+		final VerticalLayout vLayout2 = new VerticalLayout();
+		hPanel.setFirstComponent(vLayout2);
+
+		final VerticalLayout vLayout3 = new VerticalLayout();
+		hPanel.setSecondComponent(vLayout3);
+
+		// TextArea:
+		Label commentLabel = new Label("Please leave a comment:");
+		commentLabel.setStyleName("textstyle");
+		vLayout1.addComponent(commentLabel);
+		final TextArea textArea = new TextArea("");
+		textArea.setStyleName("textstyle");
+		textArea.setHeight("60");
+		textArea.setWidth("350");
+		textArea.addValueChangeListener(new Property.ValueChangeListener() {
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				userComment = (String) textArea.getValue();
+			}
+		});
+		textArea.setImmediate(true);
+		vLayout1.addComponent(textArea);
+
+		final Label messageLabel = new Label("Message:");
+		messageLabel.setStyleName("textstyle");
+		final Label dataEnteredLabel = new Label("Date entered:");
+		dataEnteredLabel.setStyleName("textstyle");
+
+		// SubmitButton:
+		Button button = new Button("Submit");
+		button.addClickListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+
+				// saving data in a database:
+				userCommentObj.setUserText(userComment);
+				userCommentObj.setDate(new Date());
+
+				Session session = sessionFactory.openSession();
+				session.beginTransaction();
+				session.save(userCommentObj);
+				session.getTransaction().commit();
+				session.close();
+				
+				vLayout2.addComponent(new Label("***"));
+				vLayout2.addComponent(dataEnteredLabel);
+				vLayout2.addComponent(new Label(new Date().toString()));
+				vLayout2.addComponent(messageLabel);
+				vLayout2.addComponent(new Label(userComment));
+
+				textArea.setValue("");
+			}
+		});
+		vLayout1.addComponent(button);
+
+		Label message = new Label("Your comment will appear here..");
+		vLayout2.addComponent(message);
+
+		// Getting data back from the database:
+		Button showDataButton = new Button("Show Data");
+		showDataButton.addClickListener(new Button.ClickListener() {
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				
+				Session session = sessionFactory.openSession();
+				session.beginTransaction();
+
+				// Getting the object back from the database:
+				userCommentObj2 = (UserComment) session.get(UserComment.class,1); // 1 - userId
+				session.close();
+				
+				vLayout3.addComponent(new Label(userCommentObj2.getUserText()));
+			}
+		});
+		vLayout3.addComponent(showDataButton);
+	}
 }

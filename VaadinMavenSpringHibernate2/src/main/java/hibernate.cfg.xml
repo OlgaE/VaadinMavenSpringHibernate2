@@ -50,7 +50,7 @@
         <property name="hbm2ddl.auto">create</property>
 
         <!-- Names the annotated entity class -->
-        <mapping class="com.demo.VaadinMavenSpringHibernate2.UserDetails"/>
+        <mapping class="com.demo.VaadinMavenSpringHibernate2.UserComment"/>
         
     </session-factory>
 </hibernate-configuration>
