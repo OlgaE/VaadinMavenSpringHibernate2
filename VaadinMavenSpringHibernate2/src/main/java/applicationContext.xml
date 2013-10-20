@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
 	xmlns:context="http://www.springframework.org/schema/context">
 
-	<bean id="myBean" class="com.demo.VaadinMavenSpringHibernate2.MyBeanInterface">
+	<bean id="myBean" class="com.demo.VaadinMavenSpringHibernate2.BeanInterface">
 	</bean>
 
 	<!--  to include all annotation postprocessors, type: 

@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.servlet.annotation.WebServlet;
 
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -45,11 +46,16 @@ public class MyVaadinUI extends UI {
 	static {
 		// Getting a SessionFactory object:
 		// Session factory is created once per application.
-		Configuration configuration = new Configuration();
-		configuration.configure();
-		serviceRegistry = new ServiceRegistryBuilder().applySettings(
-				configuration.getProperties()).buildServiceRegistry();
-		sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+		
+		try {
+			Configuration configuration = new Configuration();
+			configuration.configure();
+			serviceRegistry = new ServiceRegistryBuilder().applySettings(
+					configuration.getProperties()).buildServiceRegistry();
+			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+		} catch (HibernateException e) {
+			System.err.println("Initial SessionFactory creation failed." + e);
+		}
 	}
 
 	@Override
@@ -60,10 +66,10 @@ public class MyVaadinUI extends UI {
 		// Getting a bean from the Spring bean factory:
 		SpringContextHelper helper = new SpringContextHelper(VaadinServlet
 				.getCurrent().getServletContext());
-		final MyBeanInterface bean = (MyBeanInterface) helper.getBean("myBean");
+		BeanInterface bean = (BeanInterface) helper.getBean("myBean");
 
 		VerticalSplitPanel vPanel = new VerticalSplitPanel();
-		vPanel.setSplitPosition(40);
+		vPanel.setSplitPosition(45);
 		setContent(vPanel);
 
 		HorizontalSplitPanel hPanel = new HorizontalSplitPanel();
@@ -78,6 +84,12 @@ public class MyVaadinUI extends UI {
 		final VerticalLayout vLayout3 = new VerticalLayout();
 		hPanel.setSecondComponent(vLayout3);
 
+		// Welcome message:
+		String welcome = bean.sayHello();
+		Label welcomeLabel = new Label(welcome);
+		welcomeLabel.setStyleName("welcomestyle");
+		vLayout1.addComponent(welcomeLabel);
+		
 		// TextArea:
 		Label commentLabel = new Label("Please leave a comment:");
 		commentLabel.setStyleName("textstyle");
