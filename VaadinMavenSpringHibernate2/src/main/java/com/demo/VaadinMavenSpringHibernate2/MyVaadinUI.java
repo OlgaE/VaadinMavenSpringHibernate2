@@ -77,13 +77,13 @@ public class MyVaadinUI extends UI {
 
 		// Bottom left layout:
 		BottomLeftView bottomLeftViewObj = new BottomLeftView();
-		final VerticalLayout vLayout2 = bottomLeftViewObj.getLayout();
-		hPanel.setFirstComponent(vLayout2);
+		final VerticalLayout vLayoutLeft = bottomLeftViewObj.getLayout();
+		hPanel.setFirstComponent(vLayoutLeft);
 
 		// Bottom right layout:
 		BottomRightView bottomRightViewObj = new BottomRightView();
-		final VerticalLayout vLayout3 = bottomRightViewObj.getLayout();
-		hPanel.setSecondComponent(vLayout3);
+		final VerticalLayout vLayoutRight = bottomRightViewObj.getLayout();
+		hPanel.setSecondComponent(vLayoutRight);
 	
 		// Action handler for the textarea:
 		final TextArea textArea = topViewObj.getTextArea();
@@ -113,15 +113,15 @@ public class MyVaadinUI extends UI {
 				
 				Label dataEnteredLabel = new Label("Date entered:");
 				dataEnteredLabel.setStyleName("textstyle");
-				vLayout2.addComponent(dataEnteredLabel);		
+				vLayoutLeft.addComponent(dataEnteredLabel);		
 				
-				vLayout2.addComponent(new Label(new Date().toString()));
+				vLayoutLeft.addComponent(new Label(new Date().toString()));
 				
 				Label messageLabel = new Label("Message:");
 				messageLabel.setStyleName("textstyle");
-				vLayout2.addComponent(messageLabel);
+				vLayoutLeft.addComponent(messageLabel);
 				
-				vLayout2.addComponent(new Label(userComment));
+				vLayoutLeft.addComponent(new Label(userComment));
 
 				textArea.setValue("");
 			}
@@ -144,7 +144,7 @@ public class MyVaadinUI extends UI {
 				UserComment comment = (UserComment)criteria.uniqueResult();
 				
 				if(comment != null){
-					vLayout3.addComponent(new Label(comment.getUserText()));
+					vLayoutRight.addComponent(new Label(comment.getUserText()));
 				}
 				session.close();
 			}
