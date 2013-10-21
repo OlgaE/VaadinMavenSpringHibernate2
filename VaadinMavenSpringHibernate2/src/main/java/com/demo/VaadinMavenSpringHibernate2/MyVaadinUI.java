@@ -62,11 +62,6 @@ public class MyVaadinUI extends UI {
 
 		final UserComment userCommentObj = new UserComment();
 
-		// Getting a bean from the Spring bean factory:
-		SpringContextHelper helper = new SpringContextHelper(VaadinServlet
-				.getCurrent().getServletContext());
-		BeanInterface bean = (BeanInterface) helper.getBean("myBean");
-
 		// Setting up the panels:
 		VerticalSplitPanel vPanel = new VerticalSplitPanel();
 		vPanel.setSplitPosition(45);
@@ -75,29 +70,23 @@ public class MyVaadinUI extends UI {
 		HorizontalSplitPanel hPanel = new HorizontalSplitPanel();
 		vPanel.setSecondComponent(hPanel);
 
-		VerticalLayout vLayout1 = new VerticalLayout();
-		vPanel.setFirstComponent(vLayout1);
+		// Top view layout:
+		TopView topViewObj = new TopView();
+		VerticalLayout topViewLayout = topViewObj.getLayout();
+		vPanel.setFirstComponent(topViewLayout);
 
-		final VerticalLayout vLayout2 = new VerticalLayout();
+		// Bottom left layout:
+		BottomLeftView bottomLeftViewObj = new BottomLeftView();
+		final VerticalLayout vLayout2 = bottomLeftViewObj.getLayout();
 		hPanel.setFirstComponent(vLayout2);
 
-		final VerticalLayout vLayout3 = new VerticalLayout();
+		// Bottom right layout:
+		BottomRightView bottomRightViewObj = new BottomRightView();
+		final VerticalLayout vLayout3 = bottomRightViewObj.getLayout();
 		hPanel.setSecondComponent(vLayout3);
-
-		// Welcome message:
-		String welcome = bean.sayHello();
-		Label welcomeLabel = new Label(welcome);
-		welcomeLabel.setStyleName("welcomestyle");
-		vLayout1.addComponent(welcomeLabel);
-		
-		// TextArea:
-		Label commentLabel = new Label("Please leave a comment:");
-		commentLabel.setStyleName("textstyle");
-		vLayout1.addComponent(commentLabel);
-		final TextArea textArea = new TextArea("");
-		textArea.setStyleName("textstyle");
-		textArea.setHeight("60");
-		textArea.setWidth("350");
+	
+		// Action handler for the textarea:
+		final TextArea textArea = topViewObj.getTextArea();
 		textArea.addValueChangeListener(new Property.ValueChangeListener() {
 
 			@Override
@@ -106,10 +95,9 @@ public class MyVaadinUI extends UI {
 			}
 		});
 		textArea.setImmediate(true);
-		vLayout1.addComponent(textArea);
 
-		// SubmitButton:
-		Button button = new Button("Submit");
+		// Action handler for SubmitButton:
+		Button button = topViewObj.getSubmitButton();
 		button.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 
@@ -138,19 +126,9 @@ public class MyVaadinUI extends UI {
 				textArea.setValue("");
 			}
 		});
-		vLayout1.addComponent(button);
-
-		// Below the split line:
-		Label message = new Label("Your comment will appear here..");
-		message.setStyleName("textstyle");
-		vLayout2.addComponent(message);
-
-		// Getting data back from the database:
-		Label showResLabel = new Label("Show the last entry in the database:");
-		showResLabel.setStyleName("textstyle");
-		vLayout3.addComponent(showResLabel);
 		
-		Button showDataButton = new Button("Show");
+		// Action handler for "Show" button:
+		Button showDataButton = bottomRightViewObj.getShowResButton();
 		showDataButton.addClickListener(new Button.ClickListener() {
 
 			@Override
@@ -171,6 +149,5 @@ public class MyVaadinUI extends UI {
 				session.close();
 			}
 		});
-		vLayout3.addComponent(showDataButton);
 	}
 }
