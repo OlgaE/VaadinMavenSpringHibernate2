@@ -129,6 +129,7 @@ public class MyVaadinUI extends UI {
 		
 		// Action handler for "Show" button:
 		Button showDataButton = bottomRightViewObj.getShowResButton();
+		final Label showEntryLabel = bottomRightViewObj.getShowLabel();
 		showDataButton.addClickListener(new Button.ClickListener() {
 
 			@Override
@@ -144,10 +145,41 @@ public class MyVaadinUI extends UI {
 				UserComment comment = (UserComment)criteria.uniqueResult();
 				
 				if(comment != null){
-					vLayoutRight.addComponent(new Label(comment.getUserText()));
+					showEntryLabel.setCaption(comment.getUserText());
+				} else{
+					showEntryLabel.setCaption("Data base is empty.");
 				}
 				session.close();
 			}
 		});
+		
+		// Action handler for "Delete" button:
+		Button deleteButton = bottomRightViewObj.getDeleteButton();
+		final Label successLabel = bottomRightViewObj.getSuccessLabel();
+		deleteButton.addClickListener(new Button.ClickListener() {
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				
+				Session session = sessionFactory.openSession();
+				session.beginTransaction();
+
+				// Getting the last entry:
+				Criteria criteria = session.createCriteria(UserComment.class);
+				criteria.addOrder(Order.desc("id"));
+				criteria.setMaxResults(1);
+				UserComment lastComment = (UserComment)criteria.uniqueResult();
+				
+				if(lastComment != null){
+					session.delete(lastComment);
+					session.getTransaction().commit();
+					successLabel.setCaption("Comment was deleted.");
+				}else{
+					successLabel.setCaption("No comments to delete.");
+				}
+				session.close();
+			}
+		});
+		
 	}
 }
